@@ -10,12 +10,30 @@
         <div class="panel-heading">Historique des dépenses</div>
         <div class="panel-body">
             <div class="btn-group btn-group-justified">
-                <a href="#" class="displayByMonth btn btn-default active">Par mois</a>
-                <a href="#" class="displayByTrimester btn btn-default">Par trimestre</a>
-                <a href="#" class="displayByYear btn btn-default">Par an</a>
-                    <a href="#" class="displayDetails btn btn-primary">Détails</a>
+                {{#if displayByMonth}}
+                    <a href="#" class="displayByMonth btn btn-default active">Par mois</a>
+                {{else}}
+                    <a href="#" class="displayByMonth btn btn-default">Par mois</a>
+                {{/if}}
+                {{#if displayByTrimester}}
+                    <a href="#" class="displayByTrimester btn btn-default active">Par trimestre</a>
+                {{else}}
+                    <a href="#" class="displayByTrimester btn btn-default">Par trimestre</a>
+                {{/if}}
+                {{#if displayByYear}}
+                    <a href="#" class="displayByYear btn btn-default active">Par année</a>
+                {{else}}
+                    <a href="#" class="displayByYear btn btn-default">Par année</a>
+                {{/if}}
             </div>
             {{> highchartsHelper chartId="historicalByPeriodChart" chartWidth="100%" charHeight="100%" chartObject=historicalByPeriodChartOptions}}
+            <div class="btn-group btn-group-justified">
+                {{#if displayDetailsActive}}
+                    <a href="#" class="hideDetails btn btn-info active">Masquer le détail</a>
+                {{else}}
+                    <a href="#" class="displayDetails btn btn-info">Afficher le détail</a>
+                {{/if}}
+            </div>
         </div>
     </div>
 

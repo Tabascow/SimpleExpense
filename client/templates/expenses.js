@@ -1,4 +1,8 @@
-Template.ExpensesList.events({});
+Template.ExpensesList.events({
+    "click .newExpense": function(){
+        Router.go('/insert_expense');
+    }
+});
 
 Template.ExpensesList.helpers({
     expenses:function(){

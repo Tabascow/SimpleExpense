@@ -12,23 +12,142 @@ var historicalDetailedSerie;
 Template.ExpensesStats.events({
     'click .displayDetails': function (event) {
         displayDetails = !displayDetails;
+        Session.set("displayDetailsActive",true);
+        SetHistoricalData();
+    },
+    'click .hideDetails': function (event) {
+        displayDetails = !displayDetails;
+        Session.set("displayDetailsActive",false);
         SetHistoricalData();
     },
     'click .displayByMonth': function (event) {
         periodToDisplay = 'month';
         groupPeriodExpression = 'MM/YYYY';
+        Session.set("displayByMonthActive",true);
+
         SetHistoricalData();
 
     },
     'click .displayByTrismester': function (event) {
         periodToDisplay = 'trimester';
+        Session.set("displayByTrimesterActive",true);
+
     },
     'click .displayByYear': function (event) {
         periodToDisplay = 'year';
         groupPeriodExpression = 'YYYY';
+        Session.set("displayByYearActive",true);
+
         SetHistoricalData();
     }
 });
+
+Template.ExpensesStats.helpers({
+
+    displayByMonthActive:function(){
+        return Session.get("displayByMonthActive");
+    },
+    displayByTrimesterActive:function(){
+        return Session.get("displayByTrimesterActive");
+    },
+    displayByYearActive:function(){
+        return Session.get("displayByYearActive");
+    },
+    displayDetailsActive:function(){
+        return Session.get("displayDetailsActive");
+    },
+
+    globalRepartitionChartOptions: function () {
+
+        var groups = _(expenses).groupBy('category');
+
+        var out = _(groups).map(function (g, key) {
+            return [key,
+                _(g).reduce(function (m, x) {
+                    return m + x.amount;
+                }, 0)];
+        });
+
+        return {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false
+            },
+            title: {
+                text: "Répartition des dépenses"
+            },
+            tooltip: {
+                pointFormat: '<b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                        },
+                        connectorColor: 'silver'
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'répartition',
+                data: out
+            }]
+        };
+    },
+
+    historicalByPeriodChartOptions: function () {
+
+        BuildHistoricalData();
+
+        var chartOptions = {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Dépenses par catégorie'
+            },
+            xAxis: {
+                crosshair: true,
+                categories: periodsSerie
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Montant en €'
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} €</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            colors:['#434348','#90ED7D','#AA4643','#80699B','#3D96AE','#DB843D'],
+            series: [{
+                name:"Total",
+                data:historicalGlobalSerie,
+                color:'#434348'
+            }]
+        };
+
+        return chartOptions
+    }
+})
 
 Template.ExpensesStats.onCreated(function () {
     expenses = Expenses.find({}, {sort: {date: 1}}).fetch();
@@ -44,11 +163,6 @@ function SetHistoricalData() {
     BuildHistoricalData();
 
     var chart = $('#historicalByPeriodChart').highcharts();
-
-    console.log(periodsSerie);
-    console.log(historicalGlobalSerie);
-    console.log(historicalDetailedSerie);
-    console.log(displayDetails);
 
     chart.xAxis[0].setCategories(periodsSerie);
 
@@ -143,97 +257,5 @@ function BuildHistoricalDetailedData(groupsByMonth) {
 
 
 
-Template.ExpensesStats.helpers({
 
-    globalRepartitionChartOptions: function () {
-
-        var groups = _(expenses).groupBy('category');
-
-        var out = _(groups).map(function (g, key) {
-            return [key,
-                _(g).reduce(function (m, x) {
-                    return m + x.amount;
-                }, 0)];
-        });
-
-        return {
-            chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false
-            },
-            title: {
-                text: "Répartition des dépenses"
-            },
-            tooltip: {
-                pointFormat: '<b>{point.percentage:.1f}%</b>'
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                        style: {
-                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                        },
-                        connectorColor: 'silver'
-                    }
-                }
-            },
-            series: [{
-                type: 'pie',
-                name: 'répartition',
-                data: out
-            }]
-        };
-    },
-
-    historicalByPeriodChartOptions: function () {
-
-        BuildHistoricalData();
-
-        var chartOptions = {
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'Dépenses par catégorie'
-            },
-            xAxis: {
-                crosshair: true,
-                categories: periodsSerie
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Montant en €'
-                }
-            },
-            tooltip: {
-                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y} €</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
-            },
-            plotOptions: {
-                column: {
-                    pointPadding: 0.2,
-                    borderWidth: 0
-                }
-            },
-            colors:['#434348','#90ED7D','#AA4643','#80699B','#3D96AE','#DB843D'],
-            series: [{
-                name:"Total",
-                data:historicalGlobalSerie,
-                color:'#434348'
-            }]
-        };
-
-        return chartOptions
-    }
-})
 
