@@ -1,0 +1,22 @@
+<template name="ExpensesStats">
+    <div class="panel panel-default">
+        <div class="panel-heading">Répartition globale des dépenses</div>
+        <div class="panel-body">
+            {{> highchartsHelper chartId="globalRepartitionChart" chartWidth="100%" charHeight="100%" chartObject=globalRepartitionChartOptions}}
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Historique des dépenses</div>
+        <div class="panel-body">
+            <div class="btn-group btn-group-justified">
+                <a href="#" class="displayByMonth btn btn-default active">Par mois</a>
+                <a href="#" class="displayByTrimester btn btn-default">Par trimestre</a>
+                <a href="#" class="displayByYear btn btn-default">Par an</a>
+                    <a href="#" class="displayDetails btn btn-primary">Détails</a>
+            </div>
+            {{> highchartsHelper chartId="historicalByPeriodChart" chartWidth="100%" charHeight="100%" chartObject=historicalByPeriodChartOptions}}
+        </div>
+    </div>
+
+</template>

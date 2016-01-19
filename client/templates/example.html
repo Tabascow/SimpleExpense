@@ -1,0 +1,14 @@
+<template name="ChartWithDifferentSeries">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Example</div>
+        <div class="panel-body">
+            <div class="btn-group btn-group-justified">
+                <a href="#" class="displaySerie1 btn btn-default">Serie 1</a>
+                <a href="#" class="displaySerie2 btn btn-default">Serie 2</a>
+            </div>
+            {{> highchartsHelper chartId="chart" chartWidth="100%" charHeight="100%" chartObject=chartMultiSeries}}
+        </div>
+    </div>
+
+</template>
