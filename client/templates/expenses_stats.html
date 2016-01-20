@@ -10,17 +10,17 @@
         <div class="panel-heading">Historique des dépenses</div>
         <div class="panel-body">
             <div class="btn-group btn-group-justified">
-                {{#if displayByMonth}}
+                {{#if displayPeriod "month"}}
                     <a href="#" class="displayByMonth btn btn-default active">Par mois</a>
                 {{else}}
                     <a href="#" class="displayByMonth btn btn-default">Par mois</a>
                 {{/if}}
-                {{#if displayByTrimester}}
+                {{#if displayPeriod "trimester"}}
                     <a href="#" class="displayByTrimester btn btn-default active">Par trimestre</a>
                 {{else}}
                     <a href="#" class="displayByTrimester btn btn-default">Par trimestre</a>
                 {{/if}}
-                {{#if displayByYear}}
+                {{#if displayPeriod "year"}}
                     <a href="#" class="displayByYear btn btn-default active">Par année</a>
                 {{else}}
                     <a href="#" class="displayByYear btn btn-default">Par année</a>

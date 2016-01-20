@@ -1,7 +1,6 @@
 var displayDetails = false;
 
-var periodToDisplay = 'month';
-var groupPeriodExpression = 'MM/YYYY';
+var groupPeriodExpression;
 
 var expenses;
 
@@ -12,31 +11,27 @@ var historicalDetailedSerie;
 Template.ExpensesStats.events({
     'click .displayDetails': function (event) {
         displayDetails = !displayDetails;
-        Session.set("displayDetailsActive",true);
+        Session.set("displayDetailsActive", true);
         SetHistoricalData();
     },
     'click .hideDetails': function (event) {
         displayDetails = !displayDetails;
-        Session.set("displayDetailsActive",false);
+        Session.set("displayDetailsActive", false);
         SetHistoricalData();
     },
     'click .displayByMonth': function (event) {
-        periodToDisplay = 'month';
         groupPeriodExpression = 'MM/YYYY';
-        Session.set("displayByMonthActive",true);
+        Session.set("displayPeriod", "month");
 
         SetHistoricalData();
-
     },
     'click .displayByTrismester': function (event) {
-        periodToDisplay = 'trimester';
-        Session.set("displayByTrimesterActive",true);
+        Session.set("displayPeriod", "trimester");
 
     },
     'click .displayByYear': function (event) {
-        periodToDisplay = 'year';
         groupPeriodExpression = 'YYYY';
-        Session.set("displayByYearActive",true);
+        Session.set("displayPeriod", "year");
 
         SetHistoricalData();
     }
@@ -44,16 +39,10 @@ Template.ExpensesStats.events({
 
 Template.ExpensesStats.helpers({
 
-    displayByMonthActive:function(){
-        return Session.get("displayByMonthActive");
+    displayPeriod: function (period) {
+        return Session.equals("displayPeriod", period);
     },
-    displayByTrimesterActive:function(){
-        return Session.get("displayByTrimesterActive");
-    },
-    displayByYearActive:function(){
-        return Session.get("displayByYearActive");
-    },
-    displayDetailsActive:function(){
+    displayDetailsActive: function () {
         return Session.get("displayDetailsActive");
     },
 
@@ -137,11 +126,11 @@ Template.ExpensesStats.helpers({
                     borderWidth: 0
                 }
             },
-            colors:['#434348','#90ED7D','#AA4643','#80699B','#3D96AE','#DB843D'],
+            colors: ['#434348', '#90ED7D', '#AA4643', '#80699B', '#3D96AE', '#DB843D'],
             series: [{
-                name:"Total",
-                data:historicalGlobalSerie,
-                color:'#434348'
+                name: "Total",
+                data: historicalGlobalSerie,
+                color: '#434348'
             }]
         };
 
@@ -151,6 +140,8 @@ Template.ExpensesStats.helpers({
 
 Template.ExpensesStats.onCreated(function () {
     expenses = Expenses.find({}, {sort: {date: 1}}).fetch();
+    Session.set("displayPeriod", "month");
+    groupPeriodExpression = 'MM/YYYY';
 
     BuildHistoricalPeriods();
     BuildHistoricalData();
@@ -170,10 +161,14 @@ function SetHistoricalData() {
         chart.series[0].remove(false);
     }
 
-    chart.addSeries({name:"Total",data:historicalGlobalSerie,color:'#434348'},false,true);
+    chart.addSeries({name: "Total", data: historicalGlobalSerie, color: '#434348'}, false, true);
 
     for (var i = 0; i < historicalDetailedSerie.length; i++) {
-        chart.addSeries({name: historicalDetailedSerie[i].name, data: historicalDetailedSerie[i].data, color:historicalDetailedSerie[i].color}, false, true);
+        chart.addSeries({
+            name: historicalDetailedSerie[i].name,
+            data: historicalDetailedSerie[i].data,
+            color: historicalDetailedSerie[i].color
+        }, false, true);
     }
     chart.redraw();
 }
@@ -184,7 +179,7 @@ function BuildHistoricalPeriods() {
         return moment(item.date).format(groupPeriodExpression);
     });
 
-    periodsSerie =  _(groupsByMonth).map(function (g, key) {
+    periodsSerie = _(groupsByMonth).map(function (g, key) {
         return key;
     });
 }
@@ -220,6 +215,7 @@ function BuildHistoricalDetailedData(groupsByMonth) {
             }, 0);
         });
     }
+
     var groupsByCategoryDeplacement = getGroupsByCategory(CATEGORY_DEPLACEMENT);
     var groupsByCategoryEmballage = getGroupsByCategory(CATEGORY_EMBALLAGE);
     var groupsByCategoryLocation = getGroupsByCategory(CATEGORY_LOCATION);
@@ -231,27 +227,27 @@ function BuildHistoricalDetailedData(groupsByMonth) {
     historicalDetailedSerie.push({
             name: 'Déplacements',
             data: groupsByCategoryDeplacement,
-            color:'#90ED7D'
+            color: '#90ED7D'
         },
         {
             name: 'Emballage',
             data: groupsByCategoryEmballage,
-            color:'#AA4643'
+            color: '#AA4643'
         },
         {
             name: 'Location',
             data: groupsByCategoryLocation,
-            color:'#80699B'
+            color: '#80699B'
         },
         {
             name: 'Matières premières',
             data: groupsByCategoryMatierePremiere,
-            color:'#3D96AE'
+            color: '#3D96AE'
         },
         {
             name: 'Stand',
             data: groupsByCategoryStand,
-            color:'#DB843D'
+            color: '#DB843D'
         });
 }
 
